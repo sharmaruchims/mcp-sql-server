@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mcp-sql-server": {
+      "command": "npx",
+      "args": ["tsx", "index.ts"],
+      "cwd": ".",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}

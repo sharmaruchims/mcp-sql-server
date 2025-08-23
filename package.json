@@ -1,0 +1,32 @@
+{
+  "name": "mcp-sql-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["mcp", "sql", "azure", "action-cards"],
+  "author": "",
+  "license": "ISC",
+  "description": "Model Context Protocol server for Azure SQL database operations",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.3",
+    "@types/node-fetch": "^2.6.13",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^4.18.2",
+    "mssql": "^11.0.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/mssql": "^9.1.7",
+    "tsx": "^4.20.4"
+  }
+}
