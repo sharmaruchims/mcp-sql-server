@@ -201,8 +201,8 @@ if (isAzureAppService) {
   
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`MCP SQL Server running on port ${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
-    console.log(`API docs: http://localhost:${PORT}/`);
+    console.log(`Health check: http://0.0.0.0:${PORT}/health`);
+    console.log(`API docs: http://0.0.0.0:${PORT}/`);
   });
   
   server.on('error', (err) => {
