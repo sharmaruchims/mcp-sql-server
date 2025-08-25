@@ -175,7 +175,7 @@ app.post('/mcp', (req, res) => {
   }
 });
 
-// Root endpoint
+// Root endpoint - GET
 app.get('/', (req, res) => {
   res.json({
     service: 'MCP SQL Server - Simple',
@@ -189,6 +189,34 @@ app.get('/', (req, res) => {
       'tools/list',
       'tools/call'
     ]
+  });
+});
+
+// Root endpoint - POST (handle POST requests to root)
+app.post('/', (req, res) => {
+  console.log('POST request to root endpoint:', JSON.stringify(req.body, null, 2));
+  
+  // If this looks like an MCP request, redirect to /mcp endpoint
+  if (req.body && req.body.method && req.body.method.startsWith('tools/')) {
+    console.log('Redirecting MCP request from / to /mcp');
+    return app._router.handle({ 
+      ...req, 
+      url: '/mcp', 
+      path: '/mcp' 
+    }, res);
+  }
+  
+  // Otherwise return root endpoint info
+  res.json({
+    service: 'MCP SQL Server - Simple',
+    version: '1.0.0',
+    message: 'This is the root POST endpoint',
+    endpoints: {
+      health: 'GET /health',
+      tools: 'GET /tools',
+      mcp: 'POST /mcp'
+    },
+    received_body: req.body
   });
 });
 
