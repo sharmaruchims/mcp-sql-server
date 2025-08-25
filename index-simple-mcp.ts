@@ -192,6 +192,11 @@ app.get('/', (req, res) => {
   });
 });
 
+// Handle robots.txt requests (Azure monitoring)
+app.get('/robots*.txt', (req, res) => {
+  res.type('text/plain').send('User-agent: *\nDisallow: /');
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`🚀 Simple MCP Server running on port ${port}`);
