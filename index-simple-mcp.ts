@@ -192,32 +192,129 @@ app.get('/', (req, res) => {
   });
 });
 
-// Root endpoint - POST (handle POST requests to root)
-app.post('/', (req, res) => {
+// Root endpoint - POST (handle MCP requests directly)
+app.post('/', async (req, res) => {
   console.log('POST request to root endpoint:', JSON.stringify(req.body, null, 2));
   
-  // If this looks like an MCP request, redirect to /mcp endpoint
+  // If this looks like an MCP request, handle it directly
   if (req.body && req.body.method && req.body.method.startsWith('tools/')) {
-    console.log('Redirecting MCP request from / to /mcp');
-    return app._router.handle({ 
-      ...req, 
-      url: '/mcp', 
-      path: '/mcp' 
-    }, res);
+    console.log('Handling MCP request directly at root endpoint');
+    
+    try {
+      const { method, params, id } = req.body;
+      
+      if (method === 'tools/list') {
+        console.log('Handling tools/list request at root');
+        
+        const tools = [
+          {
+            name: 'queryAzureSQL',
+            description: 'Query the Azure SQL database for user information',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                query: { type: 'string', description: 'SQL query to execute (SELECT statements only)' }
+              },
+              required: ['query']
+            }
+          },
+          {
+            name: 'addUser',
+            description: 'Add a new user to the Azure SQL database',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Full name of the user' },
+                email: { type: 'string', description: 'Email address of the user' }
+              },
+              required: ['name', 'email']
+            }
+          },
+          {
+            name: 'getSampleActionCard',
+            description: 'Generate a sample action card for user management with interactive buttons',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                userId: { type: 'number', description: 'Optional user ID to create action card for specific user' }
+              }
+            }
+          },
+          {
+            name: 'handleActionCardResponse',
+            description: 'Handle user interaction with action card buttons',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                action: { type: 'string', description: 'The action taken (approve, deny, edit, etc.)' },
+                userId: { type: 'number', description: 'ID of the user related to the action' },
+                data: { type: 'object', description: 'Additional data from the action card' }
+              },
+              required: ['action']
+            }
+          }
+        ];
+        
+        const response = {
+          jsonrpc: '2.0',
+          id: id,
+          result: { tools }
+        };
+        
+        console.log('Sending tools list response from root');
+        return res.json(response);
+      }
+      
+      if (method === 'tools/call') {
+        console.log('Handling tools/call request at root for:', params?.name);
+        
+        const response = {
+          jsonrpc: '2.0',
+          id: id,
+          result: {
+            content: [
+              {
+                type: 'text',
+                text: `Tool ${params?.name} executed successfully at root endpoint with arguments: ${JSON.stringify(params?.arguments || {})}`
+              }
+            ]
+          }
+        };
+        
+        console.log('Sending tool call response from root');
+        return res.json(response);
+      }
+      
+      // Unknown method
+      console.log('Unknown MCP method at root:', method);
+      res.status(400).json({
+        jsonrpc: '2.0',
+        id: id,
+        error: { code: -32601, message: `Method not found: ${method}` }
+      });
+      
+    } catch (error) {
+      console.error('MCP error at root:', error);
+      res.status(500).json({
+        jsonrpc: '2.0',
+        id: req.body?.id || null,
+        error: { code: -32603, message: 'Internal error', data: error.message }
+      });
+    }
+  } else {
+    // Otherwise return root endpoint info
+    res.json({
+      service: 'MCP SQL Server - Simple',
+      version: '1.0.0',
+      message: 'This is the root POST endpoint',
+      endpoints: {
+        health: 'GET /health',
+        tools: 'GET /tools',
+        mcp: 'POST /mcp'
+      },
+      received_body: req.body
+    });
   }
-  
-  // Otherwise return root endpoint info
-  res.json({
-    service: 'MCP SQL Server - Simple',
-    version: '1.0.0',
-    message: 'This is the root POST endpoint',
-    endpoints: {
-      health: 'GET /health',
-      tools: 'GET /tools',
-      mcp: 'POST /mcp'
-    },
-    received_body: req.body
-  });
 });
 
 // Handle robots.txt requests (Azure monitoring)
